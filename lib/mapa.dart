@@ -59,14 +59,15 @@ void goToPageG(){
           mapController: mapController,
           options:
               MapOptions(center: LatLng(20.9616700, -76.9511100), zoom: 14.0),
-          layers: [
-            TileLayerOptions(
+          children: [
+            TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
-            MarkerLayerOptions(
-              markers: Loca.map((e) => Marker(width: e.lat,
+            MarkerLayer(
+              markers: Loca.map((e) => Marker(
+                width: e.lat,
                   height: e.long,
                   point: LatLng(e.lat, e.long),
-                  builder: (ctx) => Container(
+                  child: Container(
                           child: Container(
                         child: Icon(
                           Icons.location_on,
