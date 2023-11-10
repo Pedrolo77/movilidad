@@ -1,23 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
-import 'loc.dart';
+import 'package:movilidad/db.dart';
+import 'package:movilidad/parada.dart';
 
 class Mapa extends StatefulWidget {
   @override
   _Mapa createState() => _Mapa();
   
 }
-
 class _Mapa extends State<Mapa> {
 
-  List<Loc> Loca = [Loc(-76.95,25.87), Loc(-76.94738,25.82648), Loc(-76.96487,25.746494)];
+  DB database = DB();
+  List<Marker> M = List.empty(growable: true);
+  List<Parada> P = List.empty(growable: true);
+
+loadParadas() async{
+  P = await database.getAllParadas();
+
+
+  M = P.map((e) => Marker(
+                width: 50,
+                  height: 50,
+                  point: LatLng(e.L.lat, e.L.long),
+                  child: Container(
+                          child: Container(
+                        child: Icon(
+                          Icons.location_on,
+                          color: Colors.amber,
+                          size: 40,
+                        ),
+                      )))).toList();
+}
 
   @override
   void initState() {
     super.initState();
 
+    loadParadas();
   } 
 
 void goToPageG(){
@@ -27,6 +47,7 @@ void goToPageG(){
   MapController mapController = MapController();
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Análisis de la Movilidad Urbana"),
@@ -58,23 +79,12 @@ void goToPageG(){
         child: FlutterMap(
           mapController: mapController,
           options:
-              MapOptions(center: LatLng(20.9616700, -76.9511100), zoom: 14.0),
+              const MapOptions(initialCenter: LatLng(20.9616700, -76.9511100), initialZoom: 14.0, ),
           children: [
             TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
             MarkerLayer(
-              markers: Loca.map((e) => Marker(
-                width: e.lat,
-                  height: e.long,
-                  point: LatLng(e.lat, e.long),
-                  child: Container(
-                          child: Container(
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.amber,
-                          size: 40,
-                        ),
-                      )))).toList())
+              markers: M)
           ],
         ),
       ),
