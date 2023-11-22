@@ -1,42 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:movilidad/bd/db.dart';
+import 'package:movilidad/models/tuple.dart';
 
-class GraficaPage extends StatelessWidget {
+class YearTab extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: const TabBar(
-            tabs: [
-              Tab(
-                child: Text('Dia'),
-              ),
-              Tab(
-                child: Text('Semana'),
-              ),
-              Tab(
-                child: Text('Mes'),
-              ),
-              Tab(
-                child: Text('Año'),
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(children: [DayTab(), DayTab(), DayTab(), DayTab()]),
-      ),
-    );
-  }
+  _YearTabState createState() => _YearTabState();
 }
 
-class DayTab extends StatefulWidget {
-  @override
-  _DayTabState createState() => _DayTabState();
-}
-
-class _DayTabState extends State<DayTab> {
+class _YearTabState extends State<YearTab> {
   DateTime selectedDate = DateTime.now();
 
   Future<void> _selectDate(BuildContext context) async {
@@ -53,11 +25,19 @@ class _DayTabState extends State<DayTab> {
 
       // Aquí puedes llamar a una función que genera la gráfica con la fecha seleccionada.
       // Por ejemplo:
-      generatePopulationChart(selectedDate);
+
+      List<Tuple<int,int>> conexionesAno = List.empty(growable: true);
+      conexionesAno = await getConexionesAno(selectedDate);
+      generatePopulationChart(conexionesAno);
     }
   }
 
-  void generatePopulationChart(DateTime selectedDate) {
+  Future<List<Tuple<int,int>>> getConexionesAno(selectedDate) async {
+    DB database = DB();
+    return await database.getConexionesAno(selectedDate);
+  }
+
+  void generatePopulationChart(List<Tuple<int,int>> conexiones) {
     //Aquí deberías obtener los datos de población para la fecha seleccionada.
     // Por ahora, uso datos ficticios.
 
@@ -68,46 +48,29 @@ class _DayTabState extends State<DayTab> {
             content: Container(
               height: 300,
               width: 300,
-              child: showPopulationChart(),
+              child: showPopulationChart(conexiones),
             ),
           );
         }));
   }
 
-  Widget showPopulationChart() {
-    List<BarChartGroupData> barChartData = [
-      BarChartGroupData(x: 0, barsSpace: 8, barRods: [
+  Widget showPopulationChart(List<Tuple<int,int>> conexiones) {
+
+    List<BarChartGroupData> barChartData = conexiones.map((e) => BarChartGroupData(x: e.elem1, barsSpace: 8, barRods: [
         BarChartRodData(
-          fromY: 150000000,
-          toY: 130000000,
+          fromY: 0,
+          toY: e.elem2 as double,
           color: Colors.blue,
           width: 20,
         ),
-      ]),
-      BarChartGroupData(x: 1, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 130000000,
-          toY: 120000000,
-          color: Colors.green,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 2, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 120000000,
-          toY: 100000000,
-          color: Colors.orange,
-          width: 20,
-        ),
-      ]),
-    ];
+      ])).toList();
 
     BarChart BC = BarChart(BarChartData(
-      maxY: 200000000,
-      minY: 50000000,
+      maxY: 10000,
+      minY: 0,
         barGroups: barChartData,
         gridData: FlGridData(show: false),
-        groupsSpace: 12,
+        groupsSpace: 60,
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
             tooltipBgColor: Colors.blueAccent,
