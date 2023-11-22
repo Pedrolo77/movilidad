@@ -3,9 +3,13 @@ import 'package:movilidad/frames/day_tab.dart';
 import 'package:movilidad/frames/month_tab.dart';
 import 'package:movilidad/frames/weekTab.dart';
 import 'package:movilidad/frames/yearTab.dart';
+import 'package:movilidad/models/parada.dart';
 
 class GraficaPage extends StatelessWidget {
-  const GraficaPage({super.key});
+  List<Parada> Pi = List.empty(growable: true);
+  GraficaPage({super.key, required P}){
+  Pi = P;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,7 @@ class GraficaPage extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(children: [const DayTab(), WeekTab(), MonthTab(), YearTab()]),
+        body: TabBarView(children: [DayTab(P: Pi), WeekTab(), MonthTab(), YearTab()]),
       ),
     );
   }

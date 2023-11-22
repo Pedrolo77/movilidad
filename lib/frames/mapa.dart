@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:movilidad/bd/db.dart';
+import 'package:movilidad/frames/day_tab.dart';
+import 'package:movilidad/frames/grafica_page.dart';
 import 'package:movilidad/models/Provincia.dart';
 import 'package:movilidad/models/loc.dart';
 import 'package:movilidad/models/parada.dart';
@@ -21,7 +23,7 @@ class _Mapa extends State<Mapa> {
   List<Parada> P = List.empty(growable: true);
   List<Provincia> provincias = List.empty(growable: true);
   Provincia principal = Provincia(0, "", Loc(0.0, 0.0), Loc(0.0, 0.0), Loc(0.0, 0.0));
-  LatLng LATLONG = LatLng(0.0, 0.0);
+  LatLng LATLONG = LatLng(20.96167, -76.95111);
 
 loadParadas() async{
 
@@ -31,14 +33,21 @@ loadParadas() async{
   P = await database.getParadasProvincia(principal.id);
   // ignore: await_only_futures
   M = await P.map((e) => Marker(
-                width: 50,
-                  height: 50,
+                width: 10,
+                  height: 10,
                   point: LatLng(e.L.lat, e.L.long),
                   child: const Icon(
-                  Icons.location_on,
-                  color: Colors.amber,
+                  Icons.bus_alert,
+                  color: Colors.red,
                   size: 40,
                   ))).toList();
+
+  database.ordenarConexionesParada();
+
+
+  setState(() {
+    
+  });
 }
 
   @override
@@ -46,33 +55,51 @@ loadParadas() async{
     super.initState();
 
     loadParadas();
-    setState(() {
-      
-    });
   } 
 
 void goToPageG(){
-  Navigator.pushNamed(context, '/grafica');
+  Navigator.push(context, MaterialPageRoute(builder: (context) => GraficaPage(P: P),));
 }
 
-void escogerProvincia(){
-   showDialog(
-        context: context,
-        builder: ((context) {
-          return AlertDialog(
-            content: Container(
-              height: 400,
-              width: 400,
-              child: 
-              ListView(children: provincias.map((e) => ListTile(title: Text(e.nombre),onTap: () {
-                    setState(() {
-                      principal = e;
-                      LATLONG = LatLng(principal.C.lat, principal.C.long);
-                    });
-                  },)).toList(),)
-            ),
-          );
-        }));
+void escogerProvincia() {
+  showDialog(
+    context: context,
+    builder: ((context) {
+      return AlertDialog(
+        content: Container(
+          height: 400,
+          width: 400,
+          child: ListView(
+            children: provincias
+                .map(
+                  (e) => ListTile(
+                    title: Text(e.nombre),
+                    onTap: () {
+                      setState(() {
+                        principal = e;
+                        LATLONG = LatLng(principal.C.lat, principal.C.long);
+                        loadParadas(); // Update map data
+                      });
+                      Navigator.pop(context); // Close dialog
+                    },
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    }),
+  ).then((value) {
+    // Update map center after dialog is closed
+    mapController.move(LATLONG, mapController.zoom);
+  });
+}
+
+void mostrarUltimaHora() async{
+  M = await database.getconexionesHora(DateTime(2023, 11, 30,17,3,23));
+  setState(() {
+    mapController.move(LATLONG, mapController.zoom);
+  });
 }
 
   MapController mapController = MapController();
@@ -82,10 +109,10 @@ void escogerProvincia(){
     return Scaffold(
       appBar: AppBar(
         title: const Text("Análisis de la Movilidad Urbana"),
-        leading: Text(principal.nombre),
         actions: [
-          ElevatedButton(onPressed: ()=>goToPageG(), child: const Text("G")),
-          ElevatedButton(onPressed: ()=>escogerProvincia(), child: const Text("Provincia"))
+          ElevatedButton(onPressed: ()=>goToPageG(), child: const Text("Estadisticas")),
+          ElevatedButton(onPressed: ()=>escogerProvincia(), child: const Text("Seleccionar provincia")),
+          ElevatedButton(onPressed: ()=>mostrarUltimaHora(), child: const Text("Mostrar Ultima Hora")),
           ],
       ),
       floatingActionButton: Column(
@@ -113,7 +140,7 @@ void escogerProvincia(){
       body: FlutterMap(
         mapController: mapController,
         options:
-            MapOptions(initialCenter: LATLONG, initialZoom: 14.0, ),
+            MapOptions(initialCenter: LATLONG, initialZoom: 14.0),
         children: [
           TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
@@ -123,27 +150,4 @@ void escogerProvincia(){
       ),
     );
   }
-}
-
-bool estaEnRango(double latitud, double longitud, double latitudMaxima,
-    double longitudMaxima, double latitudMinima, double longitudMinima) {
-  return (latitud >= latitudMinima && latitud <= latitudMaxima) &&
-      (longitud >= longitudMinima && longitud <= longitudMaxima);
-} //ESTE METODO COMPRUEBA SI UNA LOCALIZACION ESPECIFICA SE ENCUENTRA DENTRO DE UN CLUSTER, EN ESTE CASO LOS CLUSTER PROVINCIA
-
-bool estaEnAlgunaLocalizacion(
-    double latitud,
-    double longitud,
-    double latitudMaxima,
-    double longitudMaxima,
-    double latitudMinima,
-    double longitudMinima) {
-  
-
-  if (!estaEnRango(latitud, longitud, latitudMaxima, longitudMaxima,
-      latitudMinima, longitudMinima)) {
-    return false;
-  }
-
-  return false;
 }

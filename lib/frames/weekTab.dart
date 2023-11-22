@@ -57,8 +57,8 @@ class _WeekTabState extends State<WeekTab> {
     List<BarChartGroupData> barChartData = [
       BarChartGroupData(x: 0, barsSpace: 8, barRods: [
         BarChartRodData(
-          fromY: 0,
-          toY: conexionesSemana[0] as double,
+          fromY: 0.0,
+          toY: 0.0 + conexionesSemana[0],
           color: Colors.blue,
           width: 20,
         ),
@@ -66,7 +66,7 @@ class _WeekTabState extends State<WeekTab> {
       BarChartGroupData(x: 1, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: conexionesSemana[1] as double,
+          toY: 0.0 + conexionesSemana[1],
           color: Colors.green,
           width: 20,
         ),
@@ -74,7 +74,7 @@ class _WeekTabState extends State<WeekTab> {
       BarChartGroupData(x: 2, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: conexionesSemana[2] as double,
+          toY: 0.0 + conexionesSemana[2],
           color: Colors.orange,
           width: 20,
         ),
@@ -82,7 +82,7 @@ class _WeekTabState extends State<WeekTab> {
       BarChartGroupData(x: 3, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: conexionesSemana[3] as double,
+          toY: 0.0 + conexionesSemana[3],
           color: Colors.orange,
           width: 20,
         ),
@@ -90,7 +90,7 @@ class _WeekTabState extends State<WeekTab> {
       BarChartGroupData(x: 4, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: conexionesSemana[4] as double,
+          toY: 0.0 + conexionesSemana[4],
           color: Colors.orange,
           width: 20,
         ),
@@ -98,7 +98,7 @@ class _WeekTabState extends State<WeekTab> {
       BarChartGroupData(x: 5, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: conexionesSemana[5] as double,
+          toY: 0.0 + conexionesSemana[5],
           color: Colors.orange,
           width: 20,
         ),
@@ -106,7 +106,7 @@ class _WeekTabState extends State<WeekTab> {
       BarChartGroupData(x: 6, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: conexionesSemana[6] as double,
+          toY: 0.0 + conexionesSemana[6],
           color: Colors.orange,
           width: 20,
         ),
@@ -114,7 +114,7 @@ class _WeekTabState extends State<WeekTab> {
     ];
 
     BarChart BC = BarChart(BarChartData(
-      maxY: 5000,
+      maxY: 100.0,
       minY: 0,
         barGroups: barChartData,
         gridData: FlGridData(show: false),

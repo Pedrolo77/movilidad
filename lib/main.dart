@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movilidad/frames/day_tab.dart';
 import 'package:movilidad/frames/mapa.dart';
 
 import 'package:movilidad/frames/grafica_page.dart';
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (BuildContext context) => Mapa(),
-        '/grafica': (BuildContext context) => GraficaPage()
+        '/grafica': (BuildContext context) => GraficaPage(P: List.empty()),
+        '/dayTab': (BuildContext context) => DayTab(P: List.empty(),)
       },
     );
   }

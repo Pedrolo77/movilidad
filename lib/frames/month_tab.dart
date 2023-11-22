@@ -62,18 +62,18 @@ class _MonthTabState extends State<MonthTab> {
     List<BarChartGroupData> barChartData = conexiones.map((e) => BarChartGroupData(x: e.elem1, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: e.elem2 as double,
+          toY: 0.0 + e.elem2,
           color: Colors.blue,
-          width: 20,
+          width: 5,
         ),
       ])).toList();
 
     BarChart bC = BarChart(BarChartData(
-      maxY: 5000,
+      maxY: 100,
       minY: 0,
         barGroups: barChartData,
         gridData: const FlGridData(show: false),
-        groupsSpace: 60,
+        groupsSpace: 40,
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
             tooltipBgColor: Colors.blueAccent,

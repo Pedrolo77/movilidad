@@ -56,17 +56,18 @@ class _YearTabState extends State<YearTab> {
 
   Widget showPopulationChart(List<Tuple<int,int>> conexiones) {
 
-    List<BarChartGroupData> barChartData = conexiones.map((e) => BarChartGroupData(x: e.elem1, barsSpace: 8, barRods: [
+
+    List<BarChartGroupData> barChartData = conexiones.reversed.map((e) => BarChartGroupData(x: e.elem1, barsSpace: 8, barRods: [
         BarChartRodData(
           fromY: 0,
-          toY: e.elem2 as double,
+          toY: 0.0 + e.elem2,
           color: Colors.blue,
           width: 20,
         ),
       ])).toList();
 
     BarChart BC = BarChart(BarChartData(
-      maxY: 10000,
+      maxY: 400.0,
       minY: 0,
         barGroups: barChartData,
         gridData: FlGridData(show: false),

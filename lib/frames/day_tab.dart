@@ -3,10 +3,12 @@ import 'package:movilidad/bd/db.dart';
 import 'package:movilidad/models/Provincia.dart';
 import 'package:movilidad/models/loc.dart';
 import 'package:movilidad/models/parada.dart';
-import 'package:movilidad/widgets/paradasConstructor.dart';
 
 class DayTab extends StatefulWidget {
-  const DayTab({super.key});
+  List<Parada> Pi = List.empty(growable: true);
+  DayTab({super.key, required P}) {
+    Pi = P;
+  }
 
   @override
   // ignore: library_private_types_in_public_api
@@ -14,21 +16,22 @@ class DayTab extends StatefulWidget {
 }
 
 class _DayTabState extends State<DayTab> {
+  DB database = DB();
+  Provincia provincia = Provincia(1, "Las Tunas", Loc(20.73993, -77.838002),
+      Loc(21.31422, -76.303427), Loc(20.9616700, -76.9511100));
 
-  Provincia provincia = Provincia(1,"Las Tunas", Loc(20.73993,-77.838002),Loc(21.31422,-76.303427), Loc(20.9616700, -76.9511100));
   DateTime selectedDate = DateTime.now();
 
-  List<Parada> lp = List.empty(growable: true);
-  
   @override
   void initState() {
+    provincia = Provincia(1, "Las Tunas", Loc(20.73993, -77.838002),
+        Loc(21.31422, -76.303427), Loc(20.9616700, -76.9511100));
     super.initState();
-     getparadas();
   }
 
-  getparadas() async{
+  Future<int> getConexionesParadaFecha(int id, fecha) async {
     DB database = DB();
-      lp = await database.getParadasProvincia(provincia.id);
+    return await database.getConexionParadaFecha(id, fecha);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -42,32 +45,48 @@ class _DayTabState extends State<DayTab> {
       setState(() {
         selectedDate = picked;
       });
-
-      
     }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Fecha seleccionada: ${selectedDate.toLocal()}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              ParadaConstructor(lp, context, selectedDate),
-            ],
-          ),
-        ),
-        ElevatedButton(
+    return Scaffold(
+      appBar: AppBar(actions: [  ElevatedButton(
           onPressed: () => _selectDate(context),
           child: const Text('Seleccionar fecha'),
-        ),
-      ],
+        )],),
+      body: ListView.builder(
+        itemCount: widget.Pi.length,
+        itemBuilder: (BuildContext context, r) {
+          return ListTile(
+            title: Column(
+              children: [
+                Text(widget.Pi[r].nombre),
+              ],
+            ),
+            subtitle: FutureBuilder(
+              future: getConexionesParadaFecha(widget.Pi[r].id, selectedDate),
+              initialData: 0,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                if (snapshot.hasData) {
+                  return Text(snapshot.data.toString());
+                } else {
+                  return Text("No data");
+                }
+              },
+            ),
+          );
+        },
+      ),
     );
+    /*Text(
+          'Fecha seleccionada: ${selectedDate.toLocal()}',
+          style: const TextStyle(fontSize: 20),
+        ),*/
   }
 }
