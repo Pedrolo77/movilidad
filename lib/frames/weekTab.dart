@@ -1,3 +1,4 @@
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:movilidad/bd/db.dart';
@@ -22,12 +23,13 @@ class _WeekTabState extends State<WeekTab> {
         selectedDate = picked;
       });
 
-      // Aquí puedes llamar a una función que genera la gráfica con la fecha seleccionada.
-      // Por ejemplo:
-
-      List<int> conexionesSemana = List.empty(growable: true);
-      conexionesSemana = await getConexionesSemana(selectedDate);
-      generatePopulationChart(conexionesSemana);
+      List<int> conexionesSemana = await getConexionesSemana(selectedDate);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PopulationChartPage(conexionesSemana: conexionesSemana),
+        ),
+      );
     }
   }
 
@@ -36,120 +38,213 @@ class _WeekTabState extends State<WeekTab> {
     return await database.getConexionesSemana(selectedDate);
   }
 
-  void generatePopulationChart(List<int> conexionesSemana) {
-    //Aquí deberías obtener los datos de población para la fecha seleccionada.
-    // Por ahora, uso datos ficticios.
-
-    showDialog(
-        context: context,
-        builder: ((context) {
-          return AlertDialog(
-            content: Container(
-              height: 300,
-              width: 300,
-              child: showPopulationChart(conexionesSemana),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: double.infinity,
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Fecha seleccionada: ${selectedDate.toLocal()}',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
             ),
-          );
-        }));
-  }
-
-  Widget showPopulationChart(List<int> conexionesSemana) {
-    List<BarChartGroupData> barChartData = [
-      BarChartGroupData(x: 0, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0.0,
-          toY: 0.0 + conexionesSemana[0],
-          color: Colors.blue,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 1, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0,
-          toY: 0.0 + conexionesSemana[1],
-          color: Colors.green,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 2, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0,
-          toY: 0.0 + conexionesSemana[2],
-          color: Colors.orange,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 3, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0,
-          toY: 0.0 + conexionesSemana[3],
-          color: Colors.orange,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 4, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0,
-          toY: 0.0 + conexionesSemana[4],
-          color: Colors.orange,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 5, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0,
-          toY: 0.0 + conexionesSemana[5],
-          color: Colors.orange,
-          width: 20,
-        ),
-      ]),
-      BarChartGroupData(x: 6, barsSpace: 8, barRods: [
-        BarChartRodData(
-          fromY: 0,
-          toY: 0.0 + conexionesSemana[6],
-          color: Colors.orange,
-          width: 20,
-        ),
-      ]),
-    ];
-
-    BarChart BC = BarChart(BarChartData(
-      maxY: 100.0,
-      minY: 0,
-        barGroups: barChartData,
-        gridData: FlGridData(show: false),
-        groupsSpace: 60,
-        barTouchData: BarTouchData(
-          touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.blueAccent,
           ),
-        ),
-        titlesData: FlTitlesData(show: false),
-        borderData: FlBorderData(show: true)));
-
-    return BC;
+          ElevatedButton(
+            onPressed: () => _selectDate(context),
+            child: Text('Seleccionar fecha'),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class PopulationChartPage extends StatelessWidget {
+  final List<int> conexionesSemana;
+
+  PopulationChartPage({required this.conexionesSemana});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Fecha seleccionada: ${selectedDate.toLocal()}',
-                style: TextStyle(fontSize: 20),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Gráfico de población'),
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 16),
+          Expanded(
+            child: showPopulationChart(conexionesSemana),
           ),
-        ),
-        ElevatedButton(
-          onPressed: () => _selectDate(context),
-          child: Text('Seleccionar fecha'),
-        ),
-      ],
+          SizedBox(height: 16),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  color: Colors.blue,
+                ),
+                SizedBox(width: 8),
+                Text('Mon (${conexionesSemana[0]})'),
+                SizedBox(width: 16),
+                Container(
+                  width: 16,
+                  height: 16,
+                  color: Colors.green,
+                ),
+                SizedBox(width: 8),
+                Text('Tue (${conexionesSemana[1]})'),
+                SizedBox(width: 16),
+                Container(
+                  width: 16,
+                  height: 16,
+                  color: Colors.orange,
+                ),
+                SizedBox(width: 8),
+                Text('Wed (${conexionesSemana[2]})'),
+                SizedBox(width: 16),
+                Container(
+                  width: 16,
+                  height: 16,
+                  color: Colors.purple,
+                ),
+                SizedBox(width: 8),
+                Text('Thu (${conexionesSemana[3]})'),
+                SizedBox(width: 16),
+                Container(
+                  width: 16,
+                  height: 16,
+                  color: Colors.yellow,
+                ),
+                SizedBox(width: 8),
+                Text('Fri (${conexionesSemana[4]})'),
+                SizedBox(width: 16),
+                Container(
+                  width: 16,
+                  height: 16,
+                  color: Colors.red,
+                ),
+                SizedBox(width: 8),
+                Text('Sat (${conexionesSemana[5]})'),
+                SizedBox(width: 16),
+                Container(
+                  width: 16,
+
+
+height: 16,
+                  color: Colors.teal,
+                ),
+                SizedBox(width: 8),
+                Text('Sun (${conexionesSemana[6]})'),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget showPopulationChart(List<int> conexionesSemana) {
+    List<PieChartSectionData> pieChartData = [
+      PieChartSectionData(
+        value: conexionesSemana[0].toDouble(),
+        title: 'Mon',
+        color: Colors.blue,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      PieChartSectionData(
+        value: conexionesSemana[1].toDouble(),
+        title: 'Tue',
+        color: Colors.green,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      PieChartSectionData(
+        value: conexionesSemana[2].toDouble(),
+        title: 'Wed',
+        color: Colors.orange,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      PieChartSectionData(
+        value: conexionesSemana[3].toDouble(),
+        title: 'Thu',
+        color: Colors.purple,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      PieChartSectionData(
+        value: conexionesSemana[4].toDouble(),
+        title: 'Fri',
+        color: Colors.yellow,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      PieChartSectionData(
+        value: conexionesSemana[5].toDouble(),
+        title: 'Sat',
+        color: Colors.red,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      PieChartSectionData(
+        value: conexionesSemana[6].toDouble(),
+        title: 'Sun',
+        color: Colors.teal,
+        radius: 200,
+        titleStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    ];
+
+    PieChart PC = PieChart(
+      PieChartData(
+        sections: pieChartData,
+        centerSpaceRadius: 0,
+        sectionsSpace: 0,
+        startDegreeOffset: -90,
+        borderData: FlBorderData(show: false),
+       
+      ),
+    );
+
+    return PC;
   }
 }
