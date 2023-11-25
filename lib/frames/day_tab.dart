@@ -59,19 +59,20 @@ class _DayTabState extends State<DayTab> {
     final TimeOfDay? temp1 = await showTimePicker(
       context: context,
       initialTime: selectedTime,
+      helpText: "Selecciona la hora de inicio"
     );
     final TimeOfDay? temp2 = await showTimePicker(
       context: context,
       initialTime: selectedTime,
+      helpText: "Selecciona la hora final"
     );
 
-    time1 = temp1!.hour.toString();
-    time2 = temp2!.hour.toString();
-    // if (picked != null && picked != selectedTime) {
-    //   setState(() {
-    //     selectedTime = picked;
-    //   });
-    // }
+    time1 = '${temp1!.hour.toString().padLeft(2, '0')}:${temp1.minute.toString().padLeft(2, '0')}';
+    time2 = '${temp2!.hour.toString().padLeft(2, '0')}:${temp2.minute.toString().padLeft(2, '0')}';
+    if (time1 != time2) {
+       setState(() {
+       });
+     }
     
   }
 
