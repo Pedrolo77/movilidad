@@ -21,6 +21,8 @@ class _DayTabState extends State<DayTab> {
       Loc(21.31422, -76.303427), Loc(20.9616700, -76.9511100));
 
   DateTime selectedDate = DateTime.now();
+  String time1 = "00:00";
+  String time2 = "23:59";
   TextEditingController searchController = TextEditingController();
   List<Parada> filteredParadas = [];
 
@@ -34,9 +36,9 @@ class _DayTabState extends State<DayTab> {
     super.initState();
   }
 
-  Future<int> getConexionesParadaFecha(int id, fecha) async {
+  Future<int> getConexionesParadaFecha(int id, fecha, timeStart, timeEnd) async {
     DB database = DB();
-    return await database.getConexionParadaFecha(id, fecha);
+    return await database.getConexionParada(id, fecha, timeStart, timeEnd);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -54,15 +56,24 @@ class _DayTabState extends State<DayTab> {
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
+    final TimeOfDay? temp1 = await showTimePicker(
       context: context,
       initialTime: selectedTime,
+      helpText: "Selecciona la hora de inicio"
     );
-    if (picked != null && picked != selectedTime) {
-      setState(() {
-        selectedTime = picked;
-      });
-    }
+    final TimeOfDay? temp2 = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+      helpText: "Selecciona la hora final"
+    );
+
+    time1 = '${temp1!.hour.toString().padLeft(2, '0')}:${temp1.minute.toString().padLeft(2, '0')}';
+    time2 = '${temp2!.hour.toString().padLeft(2, '0')}:${temp2.minute.toString().padLeft(2, '0')}';
+    if (time1 != time2) {
+       setState(() {
+       });
+     }
+    
   }
 
   void _filterParadas(String query) {
@@ -116,7 +127,7 @@ class _DayTabState extends State<DayTab> {
                   ),
                   subtitle: FutureBuilder(
                     future: getConexionesParadaFecha(
-                        filteredParadas[r].id, selectedDate),
+                        filteredParadas[r].id, selectedDate,time1,time2),
                     initialData: 0,
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.connectionState ==
