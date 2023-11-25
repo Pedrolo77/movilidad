@@ -7,6 +7,7 @@ import 'package:movilidad/models/loc.dart';
 import 'package:movilidad/models/parada.dart';
 import 'package:movilidad/models/tuple.dart';
 import 'package:postgres/postgres.dart';
+import 'package:intl/intl.dart';
 
 class DB{
 
@@ -17,9 +18,10 @@ Future<void> connect() async {
   connection = PostgreSQLConnection(
     'localhost',
     5432,
-    'gps',
+    'gps2',
     username: 'postgres',
-    password: '123',
+    password: '2247',
+    timeoutInSeconds: 200,
   );
 
   await connection!.open();
@@ -51,10 +53,44 @@ Future<void> connect() async {
   return P;
  }
 
+Future<int> getConexionParada(int id, DateTime fechaD, String timeStart, String timeEnd) async {
+  await connect();
+  String fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' + fechaD.year.toString();
+
+  // Formatear la hora de inicio y fin del intervalo
+  DateFormat formatoHora = DateFormat('HH:mm:ss');
+  String horaInicio = "$timeStart:00";
+  String horaFin = "$timeEnd:00";
+  
+//   List<List<dynamic>> results = await connection!.query("""
+// SELECT count(*) FROM public.conexiones_parada join public.conexion
+//  on public.conexiones_parada.id_conexion = public.conexion.id_conexion 
+//  where public.conexiones_parada.id_parada = $id and public.conexion.fecha = '$fecha' a
+//  nd public.conexion.hora >= '$horaInicio' and public.conexion.hora < '$horaFin'""");
+  List<List<dynamic>> results = await connection!.query("""
+  SELECT count(*) FROM public.conexiones_parada join public.conexion on 
+  public.conexiones_parada.id_conexion = public.conexion.id_conexion where 
+  public.conexiones_parada.id_parada = $id and public.conexion.fecha = '$fecha' 
+  and public.conexion.hora between '$horaInicio' and '$horaFin';
+  """);
+  print(results.iterator);
+  
+  int cant = 0;
+  for (final row in results) {
+    cant = row[0];
+  }
+
+  await connection!.close();
+  return cant;
+}
+
 Future<int> getConexionParadaFecha(int id, DateTime fechaD) async {
   await connect();
   String fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' + fechaD.year.toString();
-  List<List<dynamic>> results = await connection!.query("SELECT count(*) FROM public.conexiones_parada join public.conexion on public.conexiones_parada.id_conexion = public.conexion.id_conexion where public.conexiones_parada.id_parada = $id and public.conexion.fecha = '$fecha'");
+
+  List<List<dynamic>> results = await connection!.query("""SELECT count(*) FROM public.conexiones_parada join 
+  public.conexion on public.conexiones_parada.id_conexion = public.conexion.id_conexion 
+  where public.conexiones_parada.id_parada = $id and public.conexion.fecha = '$fecha'""");
   int cant = 0;
  for (final row in results) {
     cant = row[0];
@@ -195,14 +231,14 @@ List<List<dynamic>> results2 = await connection!.query('SELECT * FROM public.par
     LP.add(Parada(row[0],Loc(row[1], row[2]), row[3], row[4], row[6]));
   }
 //-0.0009, 0.0009
-  for(int i = 0; i < LC.length;i++){
-    for(int j = 0; j < LP.length;j++){
-      if(LC[i].L.lat >= LP[j].L.lat-0.0009 && LC[i].L.lat <= LP[j].L.lat+0.0009 && LC[i].L.long >= LP[j].L.long-0.0009 && LC[i].L.long >= LP[j].L.long-0.0009){
-        await connection!.query('INSERT into public.conexiones_parada values(${LP[j].id}, ${LC[i].id})');
-        break;
-      }
-    }
-  }
+  // for(int i = 0; i < LC.length;i++){
+  //   for(int j = 0; j < LP.length;j++){
+  //     if(LC[i].L.lat >= LP[j].L.lat-0.0009 && LC[i].L.lat <= LP[j].L.lat+0.0009 && LC[i].L.long >= LP[j].L.long-0.0009 && LC[i].L.long >= LP[j].L.long-0.0009){
+  //       await connection!.query('INSERT into public.conexiones_parada values(${LP[j].id}, ${LC[i].id})');
+  //       break;
+  //     }
+  //   }
+  // }
 
   await connection!.close();
  }
@@ -213,7 +249,7 @@ List<List<dynamic>> results2 = await connection!.query('SELECT * FROM public.par
 
   List<Marker> L = List.empty(growable: true);
 
-  String hora = "" + date.hour.toString() + ":" + date.minute.toString() + ":23";
+  String hora = "${date.hour}:${date.minute}:23";
 
   List<List<dynamic>> results = await connection!.query("SELECT * FROM public.conexion where public.conexion.hora = '$hora'");
   for (final row in results) {
