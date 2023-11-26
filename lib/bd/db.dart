@@ -18,9 +18,9 @@ Future<void> connect() async {
   connection = PostgreSQLConnection(
     'localhost',
     5432,
-    'gps2',
+    'gps',
     username: 'postgres',
-    password: '2247',
+    password: '123',
     timeoutInSeconds: 200,
   );
 
@@ -150,7 +150,7 @@ int cantdias = 0;
   }
 
   await connection!.close();
-  return L.reversed.toList();
+  return L.toList();
  }
 
 

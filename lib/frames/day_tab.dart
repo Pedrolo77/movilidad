@@ -27,6 +27,7 @@ class _DayTabState extends State<DayTab> {
   List<Parada> filteredParadas = [];
 
   TimeOfDay selectedTime = TimeOfDay.now();
+  TimeOfDay endTime = TimeOfDay.now();
 
   @override
   void initState() {
@@ -55,26 +56,123 @@ class _DayTabState extends State<DayTab> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? temp1 = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-      helpText: "Selecciona la hora de inicio"
-    );
-    final TimeOfDay? temp2 = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-      helpText: "Selecciona la hora final"
-    );
 
-    time1 = '${temp1!.hour.toString().padLeft(2, '0')}:${temp1.minute.toString().padLeft(2, '0')}';
-    time2 = '${temp2!.hour.toString().padLeft(2, '0')}:${temp2.minute.toString().padLeft(2, '0')}';
-    if (time1 != time2) {
-       setState(() {
-       });
-     }
+Future<void> _selectTime(BuildContext context) async {
+  TimeOfDay? startTimeResult;
+  TimeOfDay? endTimeResult;
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Seleccionar tiempos'),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Flexible(
+              child: InkWell(
+                onTap: () async {
+                  final TimeOfDay? startTime = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime,
+                  );
+                  if (startTime != null) {
+                    setState(() {
+                      startTimeResult = startTime;
+                    });
+                  }
+                },
+                child: Text('Inicio'),
+              ),
+            ),
+            Flexible(
+              child: InkWell(
+                onTap: () async {
+                  final TimeOfDay? endTime = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime,
+                  );
+                  if (endTime != null) {
+                    setState(() {
+                      endTimeResult = endTime;
+                    });
+                  }
+                },
+                child: Text('Fin'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cerrar el diálogo sin guardar los cambios
+            },
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (startTimeResult == null || endTimeResult == null) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Error'),
+                      content: Text('Uno de los tiempos no ha sido seleccionado.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Cerrar el diálogo de error
+                          },
+                          child: Text('Aceptar'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                setState(() {
+                  selectedTime = startTimeResult!;
+                  endTime = endTimeResult!;
+                });
+                Navigator.of(context).pop(); // Cerrar el diálogo y guardar los cambios
+                time1 = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+                time2 = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+                
+                //String startTimeString = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}:${selectedTime.second.toString().padLeft(2, '0')}';
+                //String endTimeString = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}:${endTime.second.toString().padLeft(2, '0')}';
+                print('Hora de inicio: $time1');
+                print('Hora de fin: $time2');
+              }
+            },
+            child: Text('Aceptar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+  // Future<void> _selectTime(BuildContext context) async {
+  //   final TimeOfDay? temp1 = await showTimePicker(
+  //     context: context,
+  //     initialTime: selectedTime,
+  //     helpText: "Selecciona la hora de inicio"
+  //   );
+  //   final TimeOfDay? temp2 = await showTimePicker(
+  //     context: context,
+  //     initialTime: selectedTime,
+  //     helpText: "Selecciona la hora final"
+  //   );
+
     
-  }
+  //   if (time1 != time2) {
+  //      setState(() {
+  //      });
+  //    }
+    
+  // }
 
   void _filterParadas(String query) {
     setState(() {
