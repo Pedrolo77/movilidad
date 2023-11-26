@@ -125,10 +125,10 @@ String fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' 
   List<Tuple<int,int>> L = List.empty(growable: true);
 
 int cantdias = 0;
-  if(selectedDate.month == 1){
+  if(selectedDate.month == 2){
     cantdias = 28;
   }
-  else if (selectedDate.month == 3 && selectedDate.month == 5 && selectedDate.month == 8 && selectedDate.month == 10){
+  else if (selectedDate.month == 4 || selectedDate.month == 6 || selectedDate.month == 9 || selectedDate.month == 11){
     cantdias = 30;
   }else{
     cantdias = 31;
@@ -167,7 +167,7 @@ int cantdias = 0;
   if(nd.month == 2){
     cantdias = 28;
   }
-  else if (nd.month == 4 && nd.month == 6 && nd.month == 9 && nd.month == 11){
+  else if (nd.month == 4 || nd.month == 6 || nd.month == 9 || nd.month == 11){
     cantdias = 30;
   }else{
     cantdias = 31;
@@ -195,7 +195,7 @@ int cantdias = 0;
 }
 
   await connection!.close();
-  return L.reversed.toList();
+  return L.toList();
  }
 
 
