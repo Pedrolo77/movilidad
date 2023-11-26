@@ -64,6 +64,7 @@ class _MonthTabState extends State<MonthTab> {
     Widget bottomTitles(double value, TitleMeta meta) {
     const style = TextStyle(fontSize: 10);
     String text;
+    
     switch (value.toInt()) {
       case 0:
         text = '0';
@@ -212,6 +213,7 @@ class _MonthTabState extends State<MonthTab> {
 
   BarChart bC = BarChart(
               BarChartData(
+                maxY: 42,
                 alignment: BarChartAlignment.center,
                 barTouchData: BarTouchData(
                   enabled: true,
@@ -226,10 +228,12 @@ class _MonthTabState extends State<MonthTab> {
                     ),
                   ),
                   leftTitles: AxisTitles(
+                    drawBelowEverything: true,
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 40,
+                      reservedSize: 30,
                       getTitlesWidget: leftTitles,
+                      interval: 2,
                     ),
                   ),
                   topTitles: const AxisTitles(
@@ -241,7 +245,7 @@ class _MonthTabState extends State<MonthTab> {
                 ),
                 gridData: FlGridData(
                   show: true,
-                  checkToShowHorizontalLine: (value) => value % 10 == 0,
+                  //checkToShowHorizontalLine: (value) => value % 10 == 0,
                   getDrawingHorizontalLine: (value) => FlLine(
                    // color: AppColors.borderColor.withOpacity(0.1),
                     strokeWidth: 1,
