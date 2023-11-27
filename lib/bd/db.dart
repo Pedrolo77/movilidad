@@ -196,51 +196,67 @@ List<String> getFechasMes(DateTime selectedDate) {
 //   return L.toList();
 //  }
 
-  Future<List<Tuple<int,int>>> getConexionesAno(DateTime selectedDate) async {
-  await connect();
-  List<Tuple<int,int>> L = List.empty(growable: true);
+//   Future<List<Tuple<int,int>>> getConexionesAno(DateTime selectedDate) async {
+//   await connect();
+//   List<Tuple<int,int>> L = List.empty(growable: true);
 
 
-DateTime nd = selectedDate.copyWith(month: 1);
+// DateTime nd = selectedDate.copyWith(month: 1);
 
-for(int i = 0; i <= 11; i++){
+// for(int i = 0; i <= 11; i++){
 
-int cantdias = 0;
-  if(nd.month == 2){
-    cantdias = 28;
+// int cantdias = 0;
+//   if(nd.month == 2){
+//     cantdias = 28;
+//   }
+//   else if (nd.month == 4 || nd.month == 6 || nd.month == 9 || nd.month == 11){
+//     cantdias = 30;
+//   }else{
+//     cantdias = 31;
+//   }
+
+//   int conexionesMes = 0;
+
+//   DateTime newdate = nd.copyWith(day: 1);
+
+//   String fecha = "" + newdate.day.toString() + '-' + newdate.month.toString() + '-' + newdate.year.toString();
+
+//   for(int j = 0; j <= cantdias-1;j++){
+//   List<List<dynamic>> results = await connection!.query("SELECT count(*) FROM public.conexion where public.conexion.fecha = '$fecha'");
+//   int cant = 0;
+//  for (final row in results) {
+//     cant = row[0];
+//   }  
+//   conexionesMes+=cant;
+//   newdate = newdate.add(const Duration(days: 1));
+//   fecha = "" + newdate.day.toString() + '-' + newdate.month.toString() + '-' + newdate.year.toString();
+//   }
+
+//   L.add(Tuple(i+1, conexionesMes));
+//   nd = newdate.add(const Duration(days: 1));
+// }
+
+//   await connection!.close();
+//   return L.toList();
+//  }
+
+Future<List<Tuple<int, int>>> getConexionesAno(DateTime selectedDate) async {
+  List<Tuple<int, int>> conexionesAno = [];
+
+  for (int mes = 1; mes <= 12; mes++) {
+    DateTime fechaMes = DateTime(selectedDate.year, mes, 1);
+    List<Tuple<int, int>> conexionesMes = await getConexionesMes(fechaMes);
+
+    int sumatoria = 0;
+    for (var conexion in conexionesMes) {
+      sumatoria += conexion.elem2;
+    }
+
+    conexionesAno.add(Tuple(mes, sumatoria));
   }
-  else if (nd.month == 4 || nd.month == 6 || nd.month == 9 || nd.month == 11){
-    cantdias = 30;
-  }else{
-    cantdias = 31;
-  }
 
-  int conexionesMes = 0;
-
-  DateTime newdate = nd.copyWith(day: 1);
-
-  String fecha = "" + newdate.day.toString() + '-' + newdate.month.toString() + '-' + newdate.year.toString();
-
-  for(int j = 0; j <= cantdias-1;j++){
-  List<List<dynamic>> results = await connection!.query("SELECT count(*) FROM public.conexion where public.conexion.fecha = '$fecha'");
-  int cant = 0;
- for (final row in results) {
-    cant = row[0];
-  }  
-  conexionesMes+=cant;
-  newdate = newdate.add(const Duration(days: 1));
-  fecha = "" + newdate.day.toString() + '-' + newdate.month.toString() + '-' + newdate.year.toString();
-  }
-
-  L.add(Tuple(i+1, conexionesMes));
-  nd = newdate.add(const Duration(days: 1));
+  return conexionesAno;
 }
-
-  await connection!.close();
-  return L.toList();
- }
-
-
  Future<List<Provincia>> getProvincias() async {
   await connect();
 
