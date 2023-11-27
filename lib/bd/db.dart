@@ -103,22 +103,21 @@ Future<int> getConexionParadaFecha(int id, DateTime fechaD) async {
 
 Future<List<int>> getConexionesSemana(DateTime fechaD) async {
   await connect();
-  List<int> L = List.empty(growable: true);
-String fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' + fechaD.year.toString();
-  for(int i = 0; i < 7;i++){
-  List<List<dynamic>> results = await connection!.query("SELECT * FROM public.conexion where public.conexion.fecha = '$fecha'");
-  int cant = 0;
- for (final row in results) {
-    cant++;
-  }  
-  L.add(cant);
-  fechaD = fechaD.subtract(const Duration(days: 1));
-  fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' + fechaD.year.toString();
+  List<int> L = [];
+  String fecha = DateFormat('dd-MM-yyyy').format(fechaD);
+
+  for (int i = 0; i < 7; i++) {
+    List<List<dynamic>> results =
+        await connection!.query("SELECT * FROM public.conexion WHERE public.conexion.fecha = '$fecha'");
+    int cant = results.length;
+    L.add(cant);
+    fechaD = fechaD.subtract(const Duration(days: 1));
+    fecha = DateFormat('dd-MM-yyyy').format(fechaD);
   }
 
   await connection!.close();
   return L.reversed.toList();
- }
+}
  
 List<String> getFechasMes(DateTime selectedDate) {
   List<String> fechas = [];
