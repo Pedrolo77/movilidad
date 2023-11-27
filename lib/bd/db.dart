@@ -55,7 +55,7 @@ Future<void> connect() async {
 
 Future<int> getConexionParada(int id, DateTime fechaD, String timeStart, String timeEnd) async {
   await connect();
-  String fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' + fechaD.year.toString();
+  String fecha = "${fechaD.day.toString().padLeft(2, '0')}-${fechaD.month.toString().padLeft(2, '0')}-${fechaD.year.toString()}";
 
   // Formatear la hora de inicio y fin del intervalo
   DateFormat formatoHora = DateFormat('HH:mm:ss');
@@ -119,12 +119,26 @@ String fecha = "" + fechaD.day.toString() + '-' + fechaD.month.toString() + '-' 
   await connection!.close();
   return L.reversed.toList();
  }
+ 
+List<String> getFechasMes(DateTime selectedDate) {
+  List<String> fechas = [];
+
+  int cantdias = DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
+
+  for (int i = 1; i <= cantdias; i++) {
+    DateTime fecha = DateTime(selectedDate.year, selectedDate.month, i);
+    String fechaString = DateFormat('dd-MM-yyyy').format(fecha);
+    fechas.add(fechaString);
+  }
+
+  return fechas;
+}
 
  Future<List<Tuple<int,int>>> getConexionesMes(DateTime selectedDate) async {
-  await connect();
-  List<Tuple<int,int>> L = List.empty(growable: true);
 
-int cantdias = 0;
+  await connect();
+
+  int cantdias = 0;
   if(selectedDate.month == 2){
     cantdias = 28;
   }
@@ -134,25 +148,53 @@ int cantdias = 0;
     cantdias = 31;
   }
 
-  DateTime newdate = selectedDate.copyWith(day: 1);
+   DateTime fechaD = selectedDate.copyWith(day: 1);
 
-  String fecha = "" + newdate.day.toString() + '-' + newdate.month.toString() + '-' + newdate.year.toString();
-
-  for(int i = 0; i <= cantdias-1;i++){
-  List<List<dynamic>> results = await connection!.query("SELECT count(*) FROM public.conexion where public.conexion.fecha = '$fecha'");
-  int cant = 0;
- for (final row in results) {
-    cant = row[0];
-  }  
-  L.add(Tuple(i+1, cant));
-  newdate = newdate.add(const Duration(days: 1));
-  fecha = "" + newdate.day.toString() + '-' + newdate.month.toString() + '-' + newdate.year.toString();
+  List<Tuple<int,int>> L = List.empty(growable: true);
+ List<String> fechas = getFechasMes(selectedDate);
+  for(int i = 0; i < cantdias; i++){
+    String query = "SELECT COUNT(*) FROM conexion WHERE fecha = '${fechas[i]}'";
+    List<List<dynamic>> results = await connection!.query(query);
+    int cant = results[0][0] ?? 0;
+    L.add(Tuple(i, cant));
+    fechaD = fechaD.add(const Duration(days: 1));
   }
 
   await connection!.close();
   return L.toList();
- }
+}
 
+//  Future<List<Tuple<int,int>>> getConexionesMes(DateTime selectedDate) async {
+//   await connect();
+//   List<Tuple<int,int>> L = List.empty(growable: true);
+
+// int cantdias = 0;
+//   if(selectedDate.month == 2){
+//     cantdias = 28;
+//   }
+//   else if (selectedDate.month == 4 || selectedDate.month == 6 || selectedDate.month == 9 || selectedDate.month == 11){
+//     cantdias = 30;
+//   }else{
+//     cantdias = 31;
+//   }
+
+//   DateTime fechaD = selectedDate.copyWith(day: 1);
+
+//   String fecha = "${fechaD.day.toString().padLeft(2, '0')}-${fechaD.month.toString().padLeft(2, '0')}-${fechaD.year.toString()}";
+//   for(int i = 0; i <= cantdias;i++){
+//   List<List<dynamic>> results = await connection!.query("SELECT count(*) FROM public.conexion where public.conexion.fecha = '$fecha'");
+//   int cant = 0;
+//  for (final row in results) {
+//     cant = row[0];
+//   }  
+//   L.add(Tuple(i-1, cant));
+//   fechaD = fechaD.add(const Duration(days: 1));
+//   fecha = "${fechaD.day.toString().padLeft(2, '0')}-${fechaD.month.toString().padLeft(2, '0')}-${fechaD.year.toString()}";
+//   }
+
+//   await connection!.close();
+//   return L.toList();
+//  }
 
   Future<List<Tuple<int,int>>> getConexionesAno(DateTime selectedDate) async {
   await connect();

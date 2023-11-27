@@ -21,7 +21,7 @@ class _MonthTabState extends State<MonthTab> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != selectedDate) {
+    if (picked != null) {
       setState(() {
         selectedDate = picked;
       });
@@ -67,100 +67,100 @@ class _MonthTabState extends State<MonthTab> {
     
     switch (value.toInt()) {
       case 0:
-        text = '0';
-        break;
-      case 1:
         text = '1';
         break;
-      case 2:
+      case 1:
         text = '2';
         break;
-      case 3:
+      case 2:
         text = '3';
         break;
-      case 4:
+      case 3:
         text = '4';
         break;
-        case 5:
+      case 4:
         text = '5';
         break;
-        case 6:
+        case 5:
         text = '6';
         break;
-        case 7:
+        case 6:
         text = '7';
         break;
-        case 8:
+        case 7:
         text = '8';
         break;
-        case 9:
+        case 8:
         text = '9';
         break;
-        case 10:
+        case 9:
         text = '10';
         break;
-        case 11:
+        case 10:
         text = '11';
         break;
-        case 12:
+        case 11:
         text = '12';
         break;
-        case 13:
+        case 12:
         text = '13';
         break;
-        case 14:
+        case 13:
         text = '14';
         break;
-        case 15:
+        case 14:
         text = '15';
         break;
-        case 16:
+        case 15:
         text = '16';
         break;
-        case 17:
+        case 16:
         text = '17';
         break;
-        case 18:
+        case 17:
         text = '18';
         break;
-        case 19:
+        case 18:
         text = '19';
         break;
-        case 20:
+        case 19:
         text = '20';
         break;
-        case 21:
+        case 20:
         text = '21';
         break;
-        case 22:
+        case 21:
         text = '22';
         break;
-        case 23:
+        case 22:
         text = '23';
         break;
-        case 24:
+        case 23:
         text = '24';
         break;
-        case 25:
+        case 24:
         text = '25';
         break;
-        case 26:
+        case 25:
         text = '26';
         break;
-        case 27:
+        case 26:
         text = '27';
         break;
-        case 28:
+        case 27:
         text = '28';
         break;
-        case 29:
+        case 28:
         text = '29';
         break;
-        case 30:
+        case 29:
         text = '30';
         break;
-        case 31:
+        case 30:
         text = '31';
+        break;
+        case 31:
+        text = '32';
         break;
       default:
         text = '';

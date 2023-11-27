@@ -1,6 +1,8 @@
 
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:movilidad/bd/db.dart';
 
 class WeekTab extends StatefulWidget {
@@ -10,7 +12,7 @@ class WeekTab extends StatefulWidget {
 
 class _WeekTabState extends State<WeekTab> {
   DateTime selectedDate = DateTime.now();
-
+ List<String> dates = [];
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -18,7 +20,7 @@ class _WeekTabState extends State<WeekTab> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != selectedDate) {
+    if (picked != null) {
       setState(() {
         selectedDate = picked;
       });
@@ -27,14 +29,18 @@ class _WeekTabState extends State<WeekTab> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PopulationChartPage(conexionesSemana: conexionesSemana),
+          builder: (context) => PopulationChartPage(conexionesSemana: conexionesSemana, selectedDate: selectedDate, dates:dates),
         ),
       );
     }
   }
-
   Future<List<int>> getConexionesSemana(selectedDate) async {
-    DB database = DB();
+  for (int i = 6; i >= 0; i--) {
+    DateTime date = selectedDate.subtract(Duration(days: i));
+    String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+    dates.add(formattedDate);
+  }
+   DB database = DB();
     return await database.getConexionesSemana(selectedDate);
   }
 
@@ -49,7 +55,7 @@ class _WeekTabState extends State<WeekTab> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Fecha seleccionada: ${selectedDate.toLocal()}',
+                  'Fecha seleccionada: ${DateFormat('dd/MM/yyyy').format(selectedDate.toLocal())}',
                   style: TextStyle(fontSize: 20),
                 ),
               ],
@@ -67,8 +73,9 @@ class _WeekTabState extends State<WeekTab> {
 
 class PopulationChartPage extends StatelessWidget {
   final List<int> conexionesSemana;
-
-  PopulationChartPage({required this.conexionesSemana});
+  final DateTime selectedDate;
+  final List<String> dates;
+  PopulationChartPage({required this.conexionesSemana,required this.dates, required this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
@@ -88,63 +95,31 @@ class PopulationChartPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  width: 16,
-                  height: 16,
-                  color: Colors.blue,
-                ),
-                SizedBox(width: 8),
-                Text('Mon (${conexionesSemana[0]})'),
-                SizedBox(width: 16),
-                Container(
-                  width: 16,
-                  height: 16,
-                  color: Colors.green,
-                ),
-                SizedBox(width: 8),
-                Text('Tue (${conexionesSemana[1]})'),
-                SizedBox(width: 16),
-                Container(
-                  width: 16,
-                  height: 16,
-                  color: Colors.orange,
-                ),
-                SizedBox(width: 8),
-                Text('Wed (${conexionesSemana[2]})'),
-                SizedBox(width: 16),
-                Container(
-                  width: 16,
-                  height: 16,
-                  color: Colors.purple,
-                ),
-                SizedBox(width: 8),
-                Text('Thu (${conexionesSemana[3]})'),
-                SizedBox(width: 16),
-                Container(
-                  width: 16,
-                  height: 16,
-                  color: Colors.yellow,
-                ),
-                SizedBox(width: 8),
-                Text('Fri (${conexionesSemana[4]})'),
-                SizedBox(width: 16),
-                Container(
-                  width: 16,
-                  height: 16,
-                  color: Colors.red,
-                ),
-                SizedBox(width: 8),
-                Text('Sat (${conexionesSemana[5]})'),
-                SizedBox(width: 16),
-                Container(
-                  width: 16,
-
-
-height: 16,
-                  color: Colors.teal,
-                ),
-                SizedBox(width: 8),
-                Text('Sun (${conexionesSemana[6]})'),
+                for (int i = 0; i <conexionesSemana.length; i++)
+                  Container(
+                    width: 80,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          color: _getColor(i),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          dates[i],
+                          style: TextStyle(fontSize: 12),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '${conexionesSemana[i]}',
+                          style: TextStyle(fontSize: 12),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -153,85 +128,47 @@ height: 16,
     );
   }
 
+  Future<List<int>> getConexionesSemana(selectedDate) async {
+    DB database = DB();
+    return await database.getConexionesSemana(selectedDate);
+  }
+
+
+Color _getColor(int index) {
+    switch (index) {
+      case 0:
+        return Colors.blue;
+      case 1:
+        return Colors.green;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.purple;
+      case 4:
+        return Colors.yellow;
+      case 5:
+        return Colors.red;
+      case 6:
+        return Colors.teal;
+      default:
+        return Colors.black;
+    }
+  }
+
   Widget showPopulationChart(List<int> conexionesSemana) {
     List<PieChartSectionData> pieChartData = [
-      PieChartSectionData(
-        value: conexionesSemana[0].toDouble(),
-        title: 'Mon',
-        color: Colors.blue,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+      for (int i = 0; i < conexionesSemana.length; i++)
+        PieChartSectionData(
+          value: conexionesSemana[i].toDouble(),
+          title: '${conexionesSemana[i]}',
+          color: _getColor(i),
+          radius: 200,
+          titleStyle: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-      ),
-      PieChartSectionData(
-        value: conexionesSemana[1].toDouble(),
-        title: 'Tue',
-        color: Colors.green,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        value: conexionesSemana[2].toDouble(),
-        title: 'Wed',
-        color: Colors.orange,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        value: conexionesSemana[3].toDouble(),
-        title: 'Thu',
-        color: Colors.purple,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        value: conexionesSemana[4].toDouble(),
-        title: 'Fri',
-        color: Colors.yellow,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        value: conexionesSemana[5].toDouble(),
-        title: 'Sat',
-        color: Colors.red,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        value: conexionesSemana[6].toDouble(),
-        title: 'Sun',
-        color: Colors.teal,
-        radius: 200,
-        titleStyle: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
     ];
 
     PieChart PC = PieChart(
@@ -241,10 +178,31 @@ height: 16,
         sectionsSpace: 0,
         startDegreeOffset: -90,
         borderData: FlBorderData(show: false),
-       
       ),
     );
 
     return PC;
+  }
+}
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Population Chart',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Population Chart'),
+        ),
+        body: WeekTab(),
+      ),
+    );
   }
 }
