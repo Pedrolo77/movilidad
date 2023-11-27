@@ -1,5 +1,3 @@
-
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +10,7 @@ class WeekTab extends StatefulWidget {
 
 class _WeekTabState extends State<WeekTab> {
   DateTime selectedDate = DateTime.now();
- List<String> dates = [];
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -29,18 +27,15 @@ class _WeekTabState extends State<WeekTab> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PopulationChartPage(conexionesSemana: conexionesSemana, selectedDate: selectedDate, dates:dates),
+          builder: (context) => PopulationChartPage(
+              conexionesSemana: conexionesSemana, selectedDate: selectedDate),
         ),
       );
     }
   }
+
   Future<List<int>> getConexionesSemana(selectedDate) async {
-  for (int i = 6; i >= 0; i--) {
-    DateTime date = selectedDate.subtract(Duration(days: i));
-    String formattedDate = DateFormat('dd/MM/yyyy').format(date);
-    dates.add(formattedDate);
-  }
-   DB database = DB();
+    DB database = DB();
     return await database.getConexionesSemana(selectedDate);
   }
 
@@ -71,11 +66,27 @@ class _WeekTabState extends State<WeekTab> {
   }
 }
 
-class PopulationChartPage extends StatelessWidget {
+class PopulationChartPage extends StatefulWidget {
   final List<int> conexionesSemana;
   final DateTime selectedDate;
-  final List<String> dates;
-  PopulationChartPage({required this.conexionesSemana,required this.dates, required this.selectedDate});
+  PopulationChartPage(
+      {required this.conexionesSemana, required this.selectedDate});
+
+  @override
+  State<PopulationChartPage> createState() => _PopulationChartPageState();
+}
+
+class _PopulationChartPageState extends State<PopulationChartPage> {
+  @override
+    List<String> dates = [];
+  void initState() {
+    for (int i = 6; i >= 0; i--) {
+      DateTime date = widget.selectedDate.subtract(Duration(days: i));
+      String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+      dates.add(formattedDate);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +98,7 @@ class PopulationChartPage extends StatelessWidget {
         children: [
           SizedBox(height: 16),
           Expanded(
-            child: showPopulationChart(conexionesSemana),
+            child: showPopulationChart(widget.conexionesSemana),
           ),
           SizedBox(height: 16),
           SingleChildScrollView(
@@ -95,7 +106,7 @@ class PopulationChartPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (int i = 0; i <conexionesSemana.length; i++)
+                for (int i = 0; i < widget.conexionesSemana.length; i++)
                   Container(
                     width: 80,
                     child: Column(
@@ -113,7 +124,7 @@ class PopulationChartPage extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          '${conexionesSemana[i]}',
+                          '${widget.conexionesSemana[i]}',
                           style: TextStyle(fontSize: 12),
                           textAlign: TextAlign.center,
                         ),
@@ -129,12 +140,15 @@ class PopulationChartPage extends StatelessWidget {
   }
 
   Future<List<int>> getConexionesSemana(selectedDate) async {
+    if (dates.isNotEmpty) {
+      dates.clear(); // Borrar los valores existentes en la lista
+    }
+
     DB database = DB();
     return await database.getConexionesSemana(selectedDate);
   }
 
-
-Color _getColor(int index) {
+  Color _getColor(int index) {
     switch (index) {
       case 0:
         return Colors.blue;
